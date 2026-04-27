@@ -1,5 +1,6 @@
 package gustavo.com.springboot.service;
 
+import gustavo.com.springboot.exceptions.RecursoNaoEncontradoException;
 import gustavo.com.springboot.model.Produto;
 import gustavo.com.springboot.repository.ProdutoRepository;
 import org.springframework.stereotype.Service;
@@ -19,8 +20,9 @@ public class ProdutoService {
         return produtoRepository.findAll();
     }
 
-    public Optional<Produto> buscarPorId(Long id){
-        return produtoRepository.findById(id);
+    public Produto buscarPorId(Long id){
+        return produtoRepository.findById(id)
+                .orElseThrow(()-> new RecursoNaoEncontradoException("Produto com id " + id + " não encontrado"));
     }
 
     public Produto salvarProduto(Produto produto){
@@ -28,6 +30,10 @@ public class ProdutoService {
     }
 
     public void deletarProduto(Long id){
+        if (produtoRepository.existsById(id)) {
+            throw new RecursoNaoEncontradoException("Produto com id " + id + " não encontrado");
+        }
+
         produtoRepository.deleteById(id);
     }
 }
